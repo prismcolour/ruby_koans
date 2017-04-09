@@ -7,18 +7,18 @@ end
 class AboutMethods < Neo::Koan
 
   def test_calling_global_methods
-    assert_equal __, my_global_method(2,3)
+    assert_equal 5, my_global_method(2,3)
   end
 
   def test_calling_global_methods_without_parentheses
     result = my_global_method 2, 3
-    assert_equal __, result
+    assert_equal 5, result
   end
 
   # (NOTE: We are Using eval below because the example code is
   # considered to be syntactically invalid).
   def test_sometimes_missing_parentheses_are_ambiguous
-    eval "assert_equal 5, my_global_method 2, 3" # ENABLE CHECK
+    eval "assert_equal 5, my_global_method(2, 3)" # ENABLE CHECK
     #
     # Ruby doesn't know if you mean:
     #
@@ -33,15 +33,15 @@ class AboutMethods < Neo::Koan
   # NOTE: wrong number of arguments is not a SYNTAX error, but a
   # runtime error.
   def test_calling_global_methods_with_wrong_number_of_arguments
-    exception = assert_raise(___) do
+    exception = assert_raise(ArgumentError) do
       my_global_method
     end
-    assert_match(/__/, exception.message)
+    assert_match(/wrong number of arguments/, exception.message)
 
-    exception = assert_raise(___) do
+    exception = assert_raise(ArgumentError) do
       my_global_method(1,2,3)
     end
-    assert_match(/__/, exception.message)
+    assert_match(/wrong number of arguments/, exception.message)
   end
 
   # ------------------------------------------------------------------
@@ -51,8 +51,8 @@ class AboutMethods < Neo::Koan
   end
 
   def test_calling_with_default_values
-    assert_equal [1, __], method_with_defaults(1)
-    assert_equal [1, __], method_with_defaults(1, 2)
+    assert_equal [1, :default_value], method_with_defaults(1)
+    assert_equal [1, 2], method_with_defaults(1, 2)
   end
 
   # ------------------------------------------------------------------
@@ -62,10 +62,16 @@ class AboutMethods < Neo::Koan
   end
 
   def test_calling_with_variable_arguments
-    assert_equal __, method_with_var_args.class
-    assert_equal __, method_with_var_args
-    assert_equal __, method_with_var_args(:one)
-    assert_equal __, method_with_var_args(:one, :two)
+    
+    # http://ploos.io/ruby-koans-companion-part-10-about_methods-rb/
+    # * splat operator for multiple arguments within 1 parameter
+    # Arguments get put into an array
+    # When zero arguments, returns an empty array
+    
+    assert_equal Array, method_with_var_args.class
+    assert_equal [], method_with_var_args
+    assert_equal [:one], method_with_var_args(:one)
+    assert_equal [:one, :two], method_with_var_args(:one, :two)
   end
 
   # ------------------------------------------------------------------
@@ -77,7 +83,7 @@ class AboutMethods < Neo::Koan
   end
 
   def test_method_with_explicit_return
-    assert_equal __, method_with_explicit_return
+    assert_equal :return_value, method_with_explicit_return
   end
 
   # ------------------------------------------------------------------
@@ -88,21 +94,28 @@ class AboutMethods < Neo::Koan
   end
 
   def test_method_without_explicit_return
-    assert_equal __, method_without_explicit_return
+    # When we don't explicitly return, 
+    # we just get the very last thing we evaluated.
+    
+    assert_equal :return_value, method_without_explicit_return
   end
 
   # ------------------------------------------------------------------
 
   def my_method_in_the_same_class(a, b)
+    # Non-explicit return value
+    
     a * b
   end
 
   def test_calling_methods_in_same_class
-    assert_equal __, my_method_in_the_same_class(3,4)
+    assert_equal 12, my_method_in_the_same_class(3,4)
   end
 
   def test_calling_methods_in_same_class_with_explicit_receiver
-    assert_equal __, self.my_method_in_the_same_class(3,4)
+    # Explicit receivers applicable to situations with variable scope
+    
+    assert_equal 12, self.my_method_in_the_same_class(3,4)
   end
 
   # ------------------------------------------------------------------
@@ -113,14 +126,14 @@ class AboutMethods < Neo::Koan
   private :my_private_method
 
   def test_calling_private_methods_without_receiver
-    assert_equal __, my_private_method
+    assert_equal "a secret", my_private_method
   end
 
   def test_calling_private_methods_with_an_explicit_receiver
-    exception = assert_raise(___) do
+    exception = assert_raise(Exception) do
       self.my_private_method
     end
-    assert_match /__/, exception.message
+    assert_match /private method/, exception.message
   end
 
   # ------------------------------------------------------------------
@@ -139,12 +152,40 @@ class AboutMethods < Neo::Koan
 
   def test_calling_methods_in_other_objects_require_explicit_receiver
     rover = Dog.new
-    assert_equal __, rover.name
+    assert_equal "Fido", rover.name
   end
 
   def test_calling_private_methods_in_other_objects
+    
+    # http://stackoverflow.com/questions/4293215/
+    # understanding-private-methods-in-ruby
+    # will not work, because we specified explicit receiver - 
+    # instance of Example (e), and that is against a "private rule".
+    # What private means in Ruby is a method cannot 
+    # be called with a explicit receivers, 
+    # e.g. some_instance.private_method(value)
+    
+    # Workaround: 
+    # Is there a way to call a private Class method 
+    # from an instance in Ruby?
+    # http://stackoverflow.com/questions/20674/is-there-a-way-to-
+    # call-a-private-class-method-from-an-instance-in-ruby
+    # http://stackoverflow.com/questions/39344445/
+    # private-methods-calling-in-ruby
+    # Ex. p = Private.new
+    # p.instance_eval{ private_method("private method called") }
+    # p is an implicit receiver
+    
+    # Difference between implicit receivers and explicit receivers 
+    # https://www.reddit.com/r/ruby/comments/436d1m/
+    # what_is_the_difference_between_an_implicit_and/
+    # "Every method you call is received by some object. The object receiving the method call is the receiver. If you mention 
+    # the object in the call, that's 'explicit'. 
+    # If you call a method in the same object as the 
+    # context without mentioning 'self', that's 'implicit'."
+
     rover = Dog.new
-    assert_raise(___) do
+    assert_raise(Exception) do
       rover.tail
     end
   end
