@@ -51,6 +51,8 @@ class AboutConstants < Neo::Koan
   end
 
   # ------------------------------------------------------------------
+  # Lexical scoping looks/feels like in-line
+  # Higher up takes precedence, overrides the inheritance hierachy 
 
   class MyAnimals
     LEGS = 2
@@ -76,7 +78,9 @@ class AboutConstants < Neo::Koan
   # the contant has precedence in lexical scope and not inheritance hierarchy
   
   # ------------------------------------------------------------------
-
+  # Writing the class definition like this is an explicit scoping on class
+  # Supports inheritance hierarchy over lexical scoping
+  
   class MyAnimals::Oyster < Animal
     def legs_in_oyster
       LEGS
@@ -90,4 +94,5 @@ class AboutConstants < Neo::Koan
   # QUESTION: Now which has precedence: The constant in the lexical
   # scope, or the constant from the inheritance hierarchy?  Why is it
   # different than the previous answer?
+  
 end
