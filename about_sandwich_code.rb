@@ -14,7 +14,7 @@ class AboutSandwichCode < Neo::Koan
   end
 
   def test_counting_lines
-    assert_equal __, count_lines("example_file.txt")
+    assert_equal 4, count_lines("example_file.txt")
   end
 
   # ------------------------------------------------------------------
@@ -29,7 +29,7 @@ class AboutSandwichCode < Neo::Koan
   end
 
   def test_finding_lines
-    assert_equal __, find_line("example_file.txt")
+    assert_equal "test\n", find_line("example_file.txt")
   end
 
   # ------------------------------------------------------------------
@@ -62,6 +62,9 @@ class AboutSandwichCode < Neo::Koan
   end
 
   # Now we write:
+  # Top/bottom is sandwich is the same, meat is different so it's easier to
+  # write a method that has a yield keyword to pull in the meat portion of 
+  # the sandwich code
 
   def count_lines2(file_name)
     file_sandwich(file_name) do |file|
@@ -74,21 +77,37 @@ class AboutSandwichCode < Neo::Koan
   end
 
   def test_counting_lines2
-    assert_equal __, count_lines2("example_file.txt")
+    assert_equal 4, count_lines2("example_file.txt")
   end
 
   # ------------------------------------------------------------------
+  
+  # Replaces the original find_line method using sandwich code (boiler plate
+  # for certain actions like opening and closing files)
 
   def find_line2(file_name)
     # Rewrite find_line using the file_sandwich library function.
+    # yield(file) in the file_sandwich method will yield the do/end block 
+    # Cleaner way to write code that deals with repetitive actions like
+    # opening/closing of files
+    
+    file_sandwich(file_name) do |file|
+      while line = file.gets
+        return line if line.match(/e/)
+      end
+    end
   end
 
   def test_finding_lines2
-    assert_equal __, find_line2("example_file.txt")
+    assert_equal "test\n", find_line2("example_file.txt")
   end
 
   # ------------------------------------------------------------------
 
+  # Does not have boiler plate sandwich code 
+  # Notice the length of code on this 
+  # Also does not close out the file after it's done
+  
   def count_lines3(file_name)
     open(file_name) do |file|
       count = 0
@@ -100,7 +119,7 @@ class AboutSandwichCode < Neo::Koan
   end
 
   def test_open_handles_the_file_sandwich_when_given_a_block
-    assert_equal __, count_lines3("example_file.txt")
+    assert_equal 4, count_lines3("example_file.txt")
   end
 
 end
