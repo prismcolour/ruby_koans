@@ -6,6 +6,19 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 #   code ...
 # end
 
+# Taken from https://traintodevelopment.wordpress.com/
+# 2016/04/15/ruby-koans-dice-project/
+# Skipped this to get to the inheritance koan 
+
+class DiceSet
+  attr_reader :values
+  def roll(num)
+    @values = []
+    (1..num).each { |count| @values << rand(1..6) }
+  end
+  @values
+end
+
 class AboutDiceProject < Neo::Koan
   def test_can_create_a_dice_set
     dice = DiceSet.new
